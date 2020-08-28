@@ -241,7 +241,7 @@ def main(channel1,channel2,ignoreString,primarySize):
 		print("")
 	#End
 	
-if __name__ in ['__builtin__','__main__']:line
+if __name__ in ['__builtin__','__main__']:
 	#these are examples below. Change them to your values
 		#the first input must  be a character string, i.e. "primary", 
 		#that does not exist in the secondary image title but does
