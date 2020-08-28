@@ -222,6 +222,6 @@ def main(channel1,channel2,ignoreString,primarySize):
 	
 if __name__ in ['__builtin__','__main__']:
 	#these are examples below. Change them to your values
-	main("DAPI","GFP","Inspector",500)
+	main("Channel1","Channel2","Inspector",1000)
 
 
