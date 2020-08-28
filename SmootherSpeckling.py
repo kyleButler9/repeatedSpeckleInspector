@@ -3,6 +3,7 @@
 from ij.measure import ResultsTable
 from ij import WindowManager
 from ij import IJ
+from ij.plugin.filter import Analyzer
 import re
 import csv
 from os.path import join, exists
@@ -17,6 +18,7 @@ class ResultsTableToCSV:
 	def getImageNames(self):
 		try:
 			images = WindowManager.getImageTitles()
+			if len(images) ==0: x=x
 			for imageName in images:
 				#this first if statement will skip images with *ignoreString in their name
 				if not re.search(self.toIgnore,imageName):
@@ -26,7 +28,7 @@ class ResultsTableToCSV:
 						if re.search(self.channel2,imageName): 
 							secondary = imageName
 		except:
-			print("can't find images with '{}' and '{}' in their names in Fiji.".format(self.channel1,self.channel2))
+			print("Can't find images with '{}' and '{}' in their names in Fiji. \nPlease do make sure that they're opened in Fiji: \n\tthis can be done via the File dropdown \n\tor by clicking and dragging the primary and secondary images into Fiji.".format(self.channel1,self.channel2))
 			primary = ""
 			secondary = ""
 			images = set()
@@ -116,7 +118,7 @@ class SaveStuff:
 		except:
 			print("failed to write table to csv.")
 		finally:
-			print("done.")
+			print("")
 	#this saves the logs with a name based on what you add in the columns 
 	def saveLogs(self):
 		try:
@@ -125,6 +127,7 @@ class SaveStuff:
 			#for one log file to rule them all...it will append all logs to one file.
 			f = open(join(self.downloadsFolder,self.uniqueID + " logs.txt"),'w')
 			f.write(log)
+			print("saved the log.")
 		except:
 			print("no speckles.")
 		finally:
@@ -139,13 +142,18 @@ class SaveStuff:
 			iterID = int(0)
 			for image in titles2Save:
 				im2Save = WindowManager.getImage(image)
-				IJ.save(im2Save, join(self.downloadsFolder,self.uniqueID 
-				+ " speckleInspectorOutput{}.tif".format(iterID)))
+				IJ.save(im2Save, join(self.downloadsFolder,"speckleInspectorOutput "+self.uniqueID + "{}.tif".format(iterID)))
 				iterID = iterID + 1
+			for image in oldImages:
+				#this loop will kill off the save dialog box that will 
+				#pop up for the secondary image
+				im2Save = WindowManager.getImage(image)
+				im2Save.changes = False
+			print("saved new images.")
 		except:
-			print("failed to save image.")
+			print("failed to save new images.")
 		finally:
-			print("done.")
+			print("")
 			
 	def saveNewImage(self,oldImages):
 		try:
@@ -153,12 +161,17 @@ class SaveStuff:
 			newImages = WindowManager.getImageTitles()
 			title2Save = list(set(newImages) - set(oldImages))
 			im2Save = WindowManager.getImage(title2Save[0])
-			IJ.save(im2Save, join(self.downloadsFolder,self.uniqueID 
-			+ " speckleInspectorOutput{}.tif".format(iterID)))
+			IJ.save(im2Save, join(self.downloadsFolder,"speckleInspectorOutput "+self.uniqueID + ".tif"))
+			for image in list(set(newImages)-set([title2Save[0]])):
+				#this loop will kill off the save dialog box that will 
+				#pop up for other images bescides the Inspector output
+				im2Save = WindowManager.getImage(image)
+				im2Save.changes = False
+			print("saved new image.")
 		except:
 			print("failed to save image.")
 		finally:
-			print("done.")
+			print("")
 			
 	def saveAllImages(self,oldImages):
 		try:
@@ -175,53 +188,67 @@ class SaveStuff:
 				IJ.save(im2Save, join(self.downloadsFolder,self.uniqueID 
 					+ " speckleInspectorImage{}.tif".format(iterID)))
 				iterID = iterID + 1
+			print("saved all images.")
 		except:
-			print("failed to save image.")
+			print("failed to save all images.")
 		finally:
-			print("finished saving all images.")
+			print("")
 
 
 def main(channel1,channel2,ignoreString,primarySize):
-	def writeTablesToCSV(channel,roiOut,speckleOut):
+	def writeTablesToCSV(id,roiOut,speckleOut):
 		try:
 			#append your labels to them before they're written
-			speckleOut_ = RTC.appendColToFront(channel[:-4], speckleOut)
-			roiOut_ = RTC.appendColToFront(channel[:-4], roiOut)
+			identifier =id[:-4]
+			speckleOut_ = RTC.appendColToFront(identifier, speckleOut)
+			roiOut_ = RTC.appendColToFront(identifier, roiOut)
 			#save the tables to csvs -- they will append to a currently existing csv 
 			#or create a new one
 			Saves.table2CSV("speckleOutput.csv",speckleOut_)
-			print('here')
 			Saves.table2CSV("AnalysisOutput.csv",roiOut_)
+			print("finished writing tables to csvs.")
 		except:
 			print("failed to write to csvs.")
 		finally:
-			print("finished writing tables to csvs.")
+			print("")
 			
 	#Begin
-	RTC = ResultsTableToCSV(channel1,channel2,ignoreString)
-	primary,secondary,images = RTC.getImageNames()
-	speckleInputs = "primary=[{}] " \
-		 "secondary=[{}] " \
-		 "redirect=None min_primary_size={} show=secondary " \
-		 "exclude speckle statistic secondary_object" 
-	IJ.run("Speckle Inspector",speckleInputs.format(primary,secondary,primarySize))
-
-	Saves = SaveStuff(primary)
-	Saves.saveLogs()
-	Saves.saveAllImages(images)
+	try:
+		RTC = ResultsTableToCSV(channel1,channel2,ignoreString)
+		primary,secondary,images = RTC.getImageNames()
+		speckleInputs = "primary=[{}] " \
+			 "secondary=[{}] " \
+			 "redirect=None min_primary_size={} show=secondary " \
+			 "exclude speckle statistic secondary_object" 
+		IJ.run("Speckle Inspector",speckleInputs.format(primary,secondary,primarySize))
 	
-	speckleTableName = "Speckle List " + primary
-	roiTableName = "Roi Analysis"
-	
-	roiOut = RTC.roiAnalysisToWrite(roiTableName)
-	speckleOut = RTC.readResultsTablesOfNumbers(speckleTableName)
-	WindowManager.closeAllWindows()
-	
-	writeTablesToCSV(channel1,roiOut,speckleOut)
+		Saves = SaveStuff(primary)
+		Saves.saveLogs()
+		Saves.saveNewImages(images)
+		
+		speckleTableName = "Speckle List " + primary
+		roiTableName = "Roi Analysis"
+		
+		roiOut = RTC.roiAnalysisToWrite(roiTableName)
+		speckleOut = RTC.readResultsTablesOfNumbers(speckleTableName)
+		#WindowManager.closeAllWindows()
+		
+		writeTablesToCSV(primary,roiOut,speckleOut)
+		print("script completed successfully.")
+	except:
+		print("sorry, the script broke :/")
+	finally:
+		print("")
 	#End
 	
-if __name__ in ['__builtin__','__main__']:
+if __name__ in ['__builtin__','__main__']:line
 	#these are examples below. Change them to your values
-	main("Channel1","Channel2","Inspector",1000)
+		#the first input must  be a character string, i.e. "primary", 
+		#that does not exist in the secondary image title but does
+		#in the first image title. 
+		#the second input is the same for the secondary image.
+		#the third input is a string that if it is in an image title that
+		#is open in Fiji, then 
+	main("Channel1","Channel2","Inspector",500)
 
 
