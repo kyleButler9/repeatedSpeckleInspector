@@ -18,15 +18,21 @@ class ResultsTableToCSV:
 	def getImageNames(self):
 		try:
 			images = WindowManager.getImageTitles()
-			if len(images) ==0: x=x
+			if len(images) ==0: x=x #throw NameError
+			incorrectChannel1 = True
+			incorrectChannel2 = True
 			for imageName in images:
-				#this first if statement will skip images with *ignoreString in their name
+				#this first if statement wChannel2ill skip images with *ignoreString in their name
 				if not re.search(self.toIgnore,imageName):
 					if re.search(self.channel1,imageName): 
 						primary = imageName
+						incorrectChannel1 = False
 					else:
 						if re.search(self.channel2,imageName): 
 							secondary = imageName
+							incorrectChannel2 = False
+			if incorrectChannel1 & incorrectChannel2: 
+				print("the primary and secondary channel were entered incorrectly.Enter strings into the last line of this script that identify the primary and secondary images. Alternatively, rename your speckle image to Channel2.tif and your primary image to Channel1.tif.")
 		except:
 			print("Can't find images with '{}' and '{}' in their names in Fiji. \nPlease do make sure that they're opened in Fiji: \n\tthis can be done via the File dropdown \n\tor by clicking and dragging the primary and secondary images into Fiji.".format(self.channel1,self.channel2))
 			primary = ""
@@ -249,6 +255,6 @@ if __name__ in ['__builtin__','__main__']:
 		#the second input is the same for the secondary image.
 		#the third input is a string that if it is in an image title that
 		#is open in Fiji, then 
-	main("Channel1","Channel2","Inspector",500)
+	main("DAPI","GFP","Inspector",500)
 
 
