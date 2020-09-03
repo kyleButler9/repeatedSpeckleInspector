@@ -8,6 +8,7 @@ import re
 import csv
 from os.path import join, exists
 import os
+from ij.io import Opener
 
 class ResultsTableToCSV:
 	def __init__(self,channel1,channel2,ignoreString):
@@ -237,9 +238,11 @@ def main(channel1,channel2,ignoreString,primarySize):
 		
 		roiOut = RTC.roiAnalysisToWrite(roiTableName)
 		speckleOut = RTC.readResultsTablesOfNumbers(speckleTableName)
-		#WindowManager.closeAllWindows()
-		
+		WindowManager.closeAllWindows()
+		fijiDir = IJ.getDir("imagej")
+		fijiScriptsDir = join(fijiDir,"scripts")
 		writeTablesToCSV(primary,roiOut,speckleOut)
+		IJ.open(join(fijiScriptsDir,"SmootherSpeckling.py"))
 		print("script completed successfully.")
 	except:
 		print("sorry, the script broke :/")
