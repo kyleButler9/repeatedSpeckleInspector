@@ -316,6 +316,6 @@ if __name__ in ['__builtin__','__main__']:
 		#the second input is the same for the secondary image.
 		#the third input is a string that if it is in an image title that
 		#is open in Fiji, then 
-	main("DAPI","GFP","Inspector",500,15,115)
+	main("Channel","Channel2","Inspector",500,15,115)
 
 
