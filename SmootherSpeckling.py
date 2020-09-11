@@ -260,7 +260,8 @@ def main(channel1,channel2,ignoreString,primarySize,primaryImageThresh,secondary
 	
 		Saves = SaveStuff(primary)
 		Saves.saveLogs()
-		Saves.saveNewImages(images)
+		#Saves.saveNewImages(images)
+		Saves.saveAllImages(images)
 		
 		speckleTableName = "Speckle List " + primary
 		roiTableName = "Roi Analysis"
@@ -287,6 +288,6 @@ if __name__ in ['__builtin__','__main__']:
 		#the second input is the same for the secondary image.
 		#the third input is a string that if it is in an image title that
 		#is open in Fiji, then 
-	main("Channel","Channel2","Inspector",500,15,115)
+	main("Channel1","Channel2","Inspector",500,15,115)
 
 
