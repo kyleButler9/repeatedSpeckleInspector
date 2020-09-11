@@ -229,35 +229,6 @@ class Binarize:
 		finally:
 			return self
 		
-class Binarize:
-	def __init__(self,primaryThreshold,secondaryThreshold,primaryImage,secondaryImage):
-		self.primaryLowerThreshold = primaryThreshold
-		self.secondaryLowerThreshold = secondaryThreshold
-		self.primaryImage = primaryImage
-		self.secondaryImage = secondaryImage
-		self.primaryUpperThreshold = 65535
-		self.secondaryUpperThreshold = 183
-		self.renyiBinarization()
-		
-	def renyiBinarization(self):
-		try:
-			IJ.selectWindow(self.primaryImage)
-			primaryImageID = IJ.getImage()
-			IJ.setAutoThreshold(primaryImageID, "Default dark")
-			IJ.setThreshold(self.primaryLowerThreshold, self.primaryUpperThreshold)
-			IJ.run("Convert to Mask")
-			
-			IJ.selectWindow(self.secondaryImage)
-			secondaryImageID = IJ.getImage()
-			IJ.setAutoThreshold(secondaryImageID,"Default dark")
-			IJ.setThreshold(self.secondaryLowerThreshold,self.secondaryUpperThreshold)
-			IJ.run("Convert to Mask")
-		except:
-			print("unable to binarize images.")
-		finally:
-			return self
-		
-		
 		
 def main(channel1,channel2,ignoreString,primarySize,primaryImageThresh,secondaryImageThresh):
 	def writeTablesToCSV(id,roiOut,speckleOut):
