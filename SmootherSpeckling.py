@@ -4,34 +4,61 @@ from ij.measure import ResultsTable
 from ij import WindowManager
 from ij import IJ
 from ij.plugin.filter import Analyzer
+from ij.plugin.frame import RoiManager
+from ij.plugin import Commands
 import re
 import csv
 from os.path import join, exists
 import os
 from ij.io import Opener
 
-class ResultsTableToCSV:
-	def __init__(self,channel1,channel2,ignoreString):
-		self.toIgnore = ignoreString
+class fileReader(object):
+	def __init__(self,dirPath,channel1,channel2,primaryIgnoreString,ignoreInSecondary):
 		self.channel1 = channel1
 		self.channel2 = channel2
+		self.ignoreInPrimary = primaryIgnoreString
+		self.ignoreInSecondary = ignoreInSecondary
+		self.dir = dirPath
+		self.paths = []
+	def dirIter(self):
+		try:
+			incorrectChannel1 = True
+			incorrectChannel2 = True
+			for folder in os.listdir(self.dir):
+				basePath = join(self.dir,folder)
+				for fileName in os.listdir(basePath):
+					if not re.search(self.ignoreInPrimary,fileName) and not re.search(self.ignoreInSecondary,fileName):
+						if re.search(self.channel1,fileName):
+							primary = fileName
+							incorrectChannel1 = False
+						else:
+							if re.search(self.channel2,fileName):
+								secondary = fileName
+								incorrectChannel2 = False
+				if not incorrectChannel2 and not incorrectChannel1:
+					self.paths.append([join(basePath,primary),join(basePath,secondary)])
+		except:
+			print("{} had incompatable files".format(self.dir))
+		finally:
+			return self
 
-	def getImageNames(self):
+	def getOpenImageNames(self):
 		try:
 			images = WindowManager.getImageTitles()
 			if len(images) ==0: x=x #throw NameError
 			incorrectChannel1 = True
 			incorrectChannel2 = True
+			print('these are the iamges')
+			print(images)
 			for imageName in images:
 				#this first if statement wChannel2ill skip images with *ignoreString in their name
-				if not re.search(self.toIgnore,imageName):
-					if re.search(self.channel1,imageName): 
-						primary = imageName
-						incorrectChannel1 = False
-					else:
-						if re.search(self.channel2,imageName): 
-							secondary = imageName
-							incorrectChannel2 = False
+				if re.search(self.channel1,imageName): 
+					primary = imageName
+					incorrectChannel1 = False
+				else:
+					if re.search(self.channel2,imageName): 
+						secondary = imageName
+						incorrectChannel2 = False
 			if incorrectChannel1 & incorrectChannel2: 
 				print("the primary and secondary channel were entered incorrectly.Enter strings into the last line of this script that identify the primary and secondary images. Alternatively, rename your speckle image to Channel2.tif and your primary image to Channel1.tif.")
 		except:
@@ -41,6 +68,11 @@ class ResultsTableToCSV:
 			images = set()
 		finally:
 			return primary,secondary, images
+			
+class ResultsTableToCSV(fileReader):
+	def __init__(self,dirPath,channel1,channel2,ignoreString,secondaryIgnoreString):
+		super(ResultsTableToCSV,self).__init__(dirPath,channel1,channel2,
+												ignoreString,secondaryIgnoreString)
 	#roiAnalysisToWrite takes the Roi Analysis table and turns it into a table that
 	#python can write to a csv
 	def roiAnalysisToWrite(self,roiTableName):
@@ -229,8 +261,9 @@ class Binarize:
 		finally:
 			return self
 		
-		
-def main(channel1,channel2,ignoreString,primarySize,primaryImageThresh,secondaryImageThresh):
+
+def openedImagesmain(channel1,channel2,ignoreString,
+					primarySize,primaryImageThresh,secondaryImageThresh):
 	def writeTablesToCSV(id,roiOut,speckleOut):
 		try:
 			#append your labels to them before they're written
@@ -246,11 +279,10 @@ def main(channel1,channel2,ignoreString,primarySize,primaryImageThresh,secondary
 			print("failed to write to csvs.")
 		finally:
 			print("")
-			
 	#Begin
 	try:
 		RTC = ResultsTableToCSV(channel1,channel2,ignoreString)
-		primary,secondary,images = RTC.getImageNames()
+		primary,secondary,images = RTC.getOpenImageNames()
 		Binarize(primaryImageThresh,secondaryImageThresh,primary,secondary)
 		speckleInputs = "primary=[{}] " \
 			 "secondary=[{}] " \
@@ -279,6 +311,77 @@ def main(channel1,channel2,ignoreString,primarySize,primaryImageThresh,secondary
 	finally:
 		print("")
 	#End
+def dirInputmain(dirName,channel1,channel2,
+				primaryIgnoreString,secondaryIgnoreString,
+				primarySize,primaryImageThresh,secondaryImageThresh):
+	def writeTablesToCSV(id,roiOut,speckleOut):
+		try:
+			#append your labels to them before they're written
+			identifier =id[:-4]
+			speckleOut_ = RTC.appendColToFront(identifier, speckleOut)
+			roiOut_ = RTC.appendColToFront(identifier, roiOut)
+			#save the tables to csvs -- they will append to a currently existing csv 
+			#or create a new one
+			Saves.table2CSV("speckleOutput.csv",speckleOut_)
+			Saves.table2CSV("AnalysisOutput.csv",roiOut_)
+			print("finished writing tables to csvs.")
+		except:
+			print("failed to write to csvs.")
+		finally:
+			print("")
+	#Begin
+	try:
+		fijiDir = IJ.getDir("imagej")
+		fijiImagesDir = join(fijiDir,"images")
+		inputDir = join(fijiImagesDir,dirName)
+		RTC = ResultsTableToCSV(inputDir,channel1,channel2,
+								primaryIgnoreString,secondaryIgnoreString)
+		RTC.dirIter()
+		for pathSet in RTC.paths:
+			IJ.open(pathSet[0])
+			IJ.open(pathSet[1])
+			primary,secondary,images = RTC.getOpenImageNames()
+			Binarize(primaryImageThresh,secondaryImageThresh,primary,secondary)
+			speckleInputs = "primary=[{}] " \
+				 "secondary=[{}] " \
+				 "redirect=None min_primary_size={} show=secondary " \
+				 "exclude speckle statistic secondary_object" 
+			IJ.run("Speckle Inspector",speckleInputs.format(primary,secondary,primarySize))
+		
+			Saves = SaveStuff(primary)
+			Saves.saveLogs()
+			#Saves.saveNewImages(images)
+			Saves.saveAllImages(images)
+			
+			speckleTableName = "Speckle List " + primary
+			roiTableName = "Roi Analysis"
+			roiOut = RTC.roiAnalysisToWrite(roiTableName)
+			speckleOut = RTC.readResultsTablesOfNumbers(speckleTableName)
+			#WindowManager.closeAllWindows()
+			#IJ.selectWindow("Results")
+			#IJ.run("Close")
+			IJ.selectWindow("Log")
+			IJ.run("Close")
+			IJ.selectWindow("Speckle List " + primary)
+			IJ.run("Close")
+			IJ.selectWindow("Roi Analysis")
+			IJ.run("Close")
+			#IJ.selectWindow("Speckle List " + secondary)
+			#IJ.run("Close")
+			roiManager = RoiManager.getRoiManager()
+			roiManager.close()
+			Commands.closeAll()
+			fijiScriptsDir = join(fijiDir,"scripts")
+			print(primary)
+			print('end')
+			writeTablesToCSV(primary,roiOut,speckleOut)
+			#IJ.open(join(fijiScriptsDir,"SmootherSpeckling.py"))
+			print("script completed successfully.")
+	except:
+		print("sorry, the script broke :/")
+	finally:
+		print("")
+	#End
 	
 if __name__ in ['__builtin__','__main__']:
 	#these are examples below. Change them to your values
@@ -288,6 +391,6 @@ if __name__ in ['__builtin__','__main__']:
 		#the second input is the same for the secondary image.
 		#the third input is a string that if it is in an image title that
 		#is open in Fiji, then 
-	main("Channel1","Channel2","Inspector",500,15,115)
+	dirInputmain("demo","DAPI","GFP","Inspector","Inspector01",500,15,115)
 
 
