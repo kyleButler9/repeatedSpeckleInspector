@@ -391,6 +391,6 @@ if __name__ in ['__builtin__','__main__']:
 		#the second input is the same for the secondary image.
 		#the third input is a string that if it is in an image title that
 		#is open in Fiji, then 
-	dirInputmain("demo","DAPI","GFP","Inspector","Inspector01",500,15,115)
+	dirInputmain("demo","Channel1","Channel2","Inspector","Inspector01",500,15,115)
 
 
