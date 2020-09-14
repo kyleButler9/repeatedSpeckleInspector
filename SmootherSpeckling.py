@@ -284,10 +284,9 @@ def openedImagesmain(channel1,channel2,ignoreString,
 		RTC = ResultsTableToCSV(channel1,channel2,ignoreString)
 		primary,secondary,images = RTC.getOpenImageNames()
 		Binarize(primaryImageThresh,secondaryImageThresh,primary,secondary)
-		speckleInputs = "primary=[{}] " \
-			 "secondary=[{}] " \
-			 "redirect=None min_primary_size={} show=secondary " \
-			 "exclude speckle statistic secondary_object" 
+			speckleInputs = "primary=[{}] secondary=[{}] " \
+				 "redirect=None min_primary_size={} min_secondary_size=0.00000 " \
+				 "show=none exclude speckle statistic secondary_object"
 		IJ.run("Speckle Inspector",speckleInputs.format(primary,secondary,primarySize))
 	
 		Saves = SaveStuff(primary)
