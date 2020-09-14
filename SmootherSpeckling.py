@@ -239,7 +239,7 @@ class Binarize:
 		self.secondaryLowerThreshold = secondaryThreshold
 		self.primaryImage = primaryImage
 		self.secondaryImage = secondaryImage
-		self.primaryUpperThreshold = 65535
+		self.primaryUpperThreshold = 65534
 		self.secondaryUpperThreshold = 183
 		self.renyiBinarization()
 		
