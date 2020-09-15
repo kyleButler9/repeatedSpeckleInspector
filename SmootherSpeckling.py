@@ -11,6 +11,7 @@ import csv
 from os.path import join, exists
 import os
 from ij.io import Opener
+from datetime import datetime
 
 class fileReader(object):
 	def __init__(self,dirPath,channel1,channel2,primaryIgnoreString,ignoreInSecondary):
