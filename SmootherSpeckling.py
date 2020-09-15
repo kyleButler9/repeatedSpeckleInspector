@@ -286,7 +286,7 @@ def openedImagesmain(channel1,channel2,ignoreString,
 		RTC = ResultsTableToCSV(channel1,channel2,ignoreString)
 		primary,secondary,images = RTC.getOpenImageNames()
 		Binarize(primaryImageThresh,secondaryImageThresh,primary,secondary)
-			speckleInputs = "primary=[{}] secondary=[{}] " \
+		speckleInputs = "primary=[{}] secondary=[{}] " \
 				 "redirect=None min_primary_size={} min_secondary_size=0.00000 " \
 				 "show=none exclude speckle statistic secondary_object"
 		IJ.run("Speckle Inspector",speckleInputs.format(primary,secondary,primarySize))
@@ -391,6 +391,6 @@ if __name__ in ['__builtin__','__main__']:
 		#the second input is the same for the secondary image.
 		#the third input is a string that if it is in an image title that
 		#is open in Fiji, then 
-	dirInputmain("demo","Channel1","Channel2","Inspector","Inspector01",500,15,115)
+	dirInputmain("demo","Channel","Channel2","Inspector","Inspector01",500,15,84)
 
 
