@@ -23,9 +23,9 @@ class fileReader(object):
 		self.paths = []
 	def dirIter(self):
 		try:
-			incorrectChannel1 = True
-			incorrectChannel2 = True
 			for folder in os.listdir(self.dir):
+				incorrectChannel1 = True
+				incorrectChannel2 = True
 				basePath = join(self.dir,folder)
 				for fileName in os.listdir(basePath):
 					if not re.search(self.ignoreInPrimary,fileName) and not re.search(self.ignoreInSecondary,fileName):
@@ -39,7 +39,7 @@ class fileReader(object):
 				if not incorrectChannel2 and not incorrectChannel1:
 					self.paths.append([join(basePath,primary),join(basePath,secondary)])
 				else:
-					print(folder)
+					print(folder," had incompatable files.")
 		except:
 			print("{} had incompatable files".format(self.dir))
 		finally:
@@ -393,6 +393,6 @@ if __name__ in ['__builtin__','__main__']:
 		#the second input is the same for the secondary image.
 		#the third input is a string that if it is in an image title that
 		#is open in Fiji, then 
-	dirInputmain("demo","Channel","Channel2","Inspector","Inspector01",500,15,84)
+	dirInputmain("demo","ch1","ch2","ch1IgnorePhrase","ch2IgnorePhrase",500,15,84)
 
 
