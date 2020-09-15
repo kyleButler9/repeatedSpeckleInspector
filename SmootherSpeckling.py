@@ -143,8 +143,9 @@ class ResultsTableToCSV(fileReader):
 class SaveStuff:
 	def __init__(self,uniqueFileName):
 		self.uniqueID = uniqueFileName[:-4]
-		
-		self.downloadsFolder = join(IJ.getDir("downloads"),"SpeckleResults")
+		elapsedTime = (datetime.now()-datetime.fromtimestamp(0)).total_seconds()
+		elapsedTimeStr = str(elapsedTime)
+		self.downloadsFolder = join(IJ.getDir("downloads"),"SpeckleResults" + elapsedTimeStr[:-3])
 		if not exists(self.downloadsFolder):
 			os.mkdir(self.downloadsFolder)
 			
