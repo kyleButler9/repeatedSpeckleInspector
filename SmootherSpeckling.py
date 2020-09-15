@@ -38,6 +38,8 @@ class fileReader(object):
 								incorrectChannel2 = False
 				if not incorrectChannel2 and not incorrectChannel1:
 					self.paths.append([join(basePath,primary),join(basePath,secondary)])
+				else:
+					print(folder)
 		except:
 			print("{} had incompatable files".format(self.dir))
 		finally:
