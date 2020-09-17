@@ -14,7 +14,7 @@ Your structure should be as follows
 At the very bottom, you will see example inputs to replace with yours inside a "dirInputMain()" function.
 The function inputs are defined as follows:
   dirInputmain("demo","ch1","ch2","ch1IgnorePhrase","ch2IgnorePhrase",500,15,84)
-    1) replace "demo" with the name of your folder in the Fiji.app/images directory
+    1) replace "demo" with the name of your folder in the Fiji.app/images directory \n
     2) replace "ch1" and "ch2" with a character string thats present in every primary and secondary image in your folders subfolders.
     3) replace "ch1IgnorePhrase" and "ch2IgnorePhrase" with character strings that may be present in images in your folders subfolders that are not your primary and secondary images respectively but that may still contain your equivalents to "ch1" and "ch2" in their names. 
     4) replace 500 with your min primary size specification for the speckle inspector
