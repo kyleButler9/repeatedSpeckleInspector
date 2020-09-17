@@ -10,10 +10,10 @@ Your structure should be as follows
       ch2.tif
       ...
     ...
-
+<br />
 At the very bottom, you will see example inputs to replace with yours inside a "dirInputMain()" function.
-The function inputs are defined as follows:
-  dirInputmain("demo","ch1","ch2","ch1IgnorePhrase","ch2IgnorePhrase",500,15,84)
+The function inputs are defined as follows:<br />
+  dirInputmain("demo","ch1","ch2","ch1IgnorePhrase","ch2IgnorePhrase",500,15,84) <br />
     1) replace "demo" with the name of your folder in the Fiji.app/images directory <br />
     2) replace "ch1" and "ch2" with a character string thats present in every primary and secondary image in your folders subfolders. <br />
     3) replace "ch1IgnorePhrase" and "ch2IgnorePhrase" with character strings that may be present in images in your folders subfolders that are not your primary and secondary images respectively but that may still contain your equivalents to "ch1" and "ch2" in their names. <br />
@@ -24,7 +24,7 @@ The function inputs are defined as follows:
     8) run the script, making sure that under the lenguages drop down of the Fiji text editor Python is selected <br />
       **if you cannot find python in the lengauages dropdown, update your version of Fiji. <br />
 
-
+<br />
 Note) You can record a macro in Fiji that will track your manual execution of the speckle inspector. Look at the format string in the macro after you run it.
 It looks something like "primary=[yourFileName.TIF]..." you can replace the inspectorInput with that but replace the 
 file names with brackets '{}'. to change your settings. Or message me and I may help!
