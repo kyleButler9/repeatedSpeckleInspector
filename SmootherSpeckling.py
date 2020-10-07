@@ -251,7 +251,7 @@ class Binarize:
 		try:
 			IJ.selectWindow(self.primaryImage)
 			primaryImageID = IJ.getImage()
-			IJ.setAutoThreshold(primaryImageID, "RenyiEntropy dark")
+			IJ.setAutoThreshold(primaryImageID,"RenyiEntropy dark")
 			IJ.setThreshold(self.primaryLowerThreshold, self.primaryUpperThreshold)
 			IJ.run("Convert to Mask")
 			
