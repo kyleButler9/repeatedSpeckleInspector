@@ -244,20 +244,20 @@ class Binarize:
 		self.primaryImage = primaryImage
 		self.secondaryImage = secondaryImage
 		self.primaryUpperThreshold = 65534
-		self.secondaryUpperThreshold = 183
+		self.secondaryUpperThreshold = 65534
 		self.renyiBinarization()
 		
 	def renyiBinarization(self):
 		try:
 			IJ.selectWindow(self.primaryImage)
 			primaryImageID = IJ.getImage()
-			IJ.setAutoThreshold(primaryImageID, "Default dark")
+			IJ.setAutoThreshold(primaryImageID, "RenyiEntropy dark")
 			IJ.setThreshold(self.primaryLowerThreshold, self.primaryUpperThreshold)
 			IJ.run("Convert to Mask")
 			
 			IJ.selectWindow(self.secondaryImage)
 			secondaryImageID = IJ.getImage()
-			IJ.setAutoThreshold(secondaryImageID,"Default dark")
+			IJ.setAutoThreshold(secondaryImageID,"RenyiEntropy dark")
 			IJ.setThreshold(self.secondaryLowerThreshold,self.secondaryUpperThreshold)
 			IJ.run("Convert to Mask")
 		except:
