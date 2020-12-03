@@ -144,11 +144,12 @@ class ResultsTableToCSV(fileReader):
 			return matrix
 		
 class SaveStuff:
-	def __init__(self,uniqueFileName):
+	def __init__(self,uniqueFileName,outputFolder):
 		self.uniqueID = uniqueFileName[:-4]
+		self.outputFolder = str(outputFolder)
 		elapsedTime = (datetime.now()-datetime.fromtimestamp(0)).total_seconds()
 		elapsedTimeStr = str(elapsedTime)
-		self.downloadsFolder = join(IJ.getDir("downloads"),"SpeckleResults" + elapsedTimeStr[:-3])
+		self.downloadsFolder = join(IJ.getDir("downloads"),"SpeckleResults" + self.outputFolder)
 		if not exists(self.downloadsFolder):
 			os.mkdir(self.downloadsFolder)
 			
@@ -185,7 +186,7 @@ class SaveStuff:
 			iterID = int(0)
 			for image in titles2Save:
 				im2Save = WindowManager.getImage(image)
-				IJ.save(im2Save, join(self.downloadsFolder,"speckleInspectorOutput "+self.uniqueID + "{}.tif".format(iterID)))
+				IJ.save(im2Save, join(self.downloadsFolder,self.outputFolder +" speckleInspectorOutput "+self.uniqueID + "{}.tif".format(iterID)))
 				iterID = iterID + 1
 			for image in oldImages:
 				#this loop will kill off the save dialog box that will 
@@ -204,7 +205,7 @@ class SaveStuff:
 			newImages = WindowManager.getImageTitles()
 			title2Save = list(set(newImages) - set(oldImages))
 			im2Save = WindowManager.getImage(title2Save[0])
-			IJ.save(im2Save, join(self.downloadsFolder,"speckleInspectorOutput "+self.uniqueID + ".tif"))
+			IJ.save(im2Save, join(self.downloadsFolder,self.outputFolder+" speckleInspectorOutput "+self.uniqueID + ".tif"))
 			for image in list(set(newImages)-set([title2Save[0]])):
 				#this loop will kill off the save dialog box that will 
 				#pop up for other images bescides the Inspector output
@@ -223,7 +224,7 @@ class SaveStuff:
 			titles2Save = WindowManager.getImageTitles()
 			inspectorOutput = list(set(titles2Save) - set(oldImages))[0]
 			im2Save = WindowManager.getImage(inspectorOutput)
-			IJ.save(im2Save,join(self.downloadsFolder,"InspectorOutput"+self.uniqueID+".tif"))
+			IJ.save(im2Save,join(self.downloadsFolder,self.outputFolder + "InspectorOutput"+self.uniqueID+".tif"))
 			iterID = int(0)
 			for image in list(set(titles2Save) - set([inspectorOutput])):
 				
@@ -251,7 +252,7 @@ class Binarize:
 		try:
 			IJ.selectWindow(self.primaryImage)
 			primaryImageID = IJ.getImage()
-			IJ.setAutoThreshold(primaryImageID,"RenyiEntropy dark")
+			IJ.setAutoThreshold(primaryImageID, "RenyiEntropy dark")
 			IJ.setThreshold(self.primaryLowerThreshold, self.primaryUpperThreshold)
 			IJ.run("Convert to Mask")
 			
@@ -314,7 +315,7 @@ def openedImagesmain(channel1,channel2,ignoreString,
 	finally:
 		print("")
 	#End
-def dirInputmain(dirName,channel1,channel2,
+def dirInputmain(dirName,outputFolder,channel1,channel2,
 				primaryIgnoreString,secondaryIgnoreString,
 				primarySize,primaryImageThresh,secondaryImageThresh):
 	def writeTablesToCSV(id,roiOut,speckleOut):
@@ -325,8 +326,8 @@ def dirInputmain(dirName,channel1,channel2,
 			roiOut_ = RTC.appendColToFront(identifier, roiOut)
 			#save the tables to csvs -- they will append to a currently existing csv 
 			#or create a new one
-			Saves.table2CSV("speckleOutput.csv",speckleOut_)
-			Saves.table2CSV("AnalysisOutput.csv",roiOut_)
+			Saves.table2CSV(str(outputFolder) +" speckleList.csv",speckleOut_)
+			Saves.table2CSV(str(outputFolder) +" analysisOutput.csv",roiOut_)
 			print("finished writing tables to csvs.")
 		except:
 			print("failed to write to csvs.")
@@ -350,7 +351,7 @@ def dirInputmain(dirName,channel1,channel2,
 				 "show=none exclude speckle statistic secondary_object"
 			IJ.run("Speckle Inspector",speckleInputs.format(primary,secondary,primarySize))
 		
-			Saves = SaveStuff(primary)
+			Saves = SaveStuff(primary, outputFolder)
 			Saves.saveLogs()
 			#Saves.saveNewImages(images)
 			Saves.saveAllImages(images)
@@ -387,12 +388,6 @@ def dirInputmain(dirName,channel1,channel2,
 	
 if __name__ in ['__builtin__','__main__']:
 	#these are examples below. Change them to your values
-		#the first input must  be a character string, i.e. "primary", 
-		#that does not exist in the secondary image title but does
-		#in the first image title. 
-		#the second input is the same for the secondary image.
-		#the third input is a string that if it is in an image title that
-		#is open in Fiji, then 
-	dirInputmain("demo","ch1","ch2","ch1IgnorePhrase","ch2IgnorePhrase",500,15,84)
+	dirInputmain("inputFolderName","outputFolderName","DAPI","GFP","ch1IgnorePhrase","ch2IgnorePhrase",3000,10,80)
 
 
