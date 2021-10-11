@@ -1,13 +1,13 @@
 # repeatedSpeckleInspector
 Run the Fiji or ImageJ speckle inspector with the same settings for a folder filled with subfolders containing image pairings. 
-Your structure should be as follows 
+Your file structure should be as follows 
   Fiji.app/images/demo
-    capture1
-      ch1.tif
-      ch2.tif
-    capture2
-      ch1.tif
-      ch2.tif
+   * capture1
+     * ch1.tif
+     * ch2.tif
+   * capture2
+     * ch1.tif
+     * ch2.tif
       ...
     ...
 <br />
